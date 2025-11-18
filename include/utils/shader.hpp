@@ -32,6 +32,7 @@ class Shader {
         void setInt(const std::string &name, int value) const;
         void setFloat(const std::string &name, float value) const;
         void setMat4(const std::string &name, glm::mat4 value) const;
+        void setVec3(const std::string &name, glm::vec3 value) const;
 
         /*return the C style source code for a shader type associated with this object.
         @param type The type of shader. v for Vertex and f for fragment*/
@@ -145,6 +146,10 @@ inline void Shader::setMat4(const std::string &name, glm::mat4 value) const{
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
 
+inline void Shader::setVec3(const std::string &name, glm::vec3 value) const{
+    //Second arg is how many matrices we're sending, third is whether we want to transpose matrix, 4th is thematrix data
+    glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
+}
 
 inline const char* Shader::getshaderSource(const char type) const {
     if (type=='v') {

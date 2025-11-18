@@ -55,16 +55,46 @@ Ygg::Mesh Ygg::RenderEngine::createBox(const glm::vec3 &pos, const glm::quat &or
 
     // program.setMat4("model", model);
 
-    std::vector<float> vertexData;
-    for (int i = 0; i < 8; ++i) {
+    std::vector<Vertex> vertices(8);
+
+    for (int i = 0; i < 8; i++) {
         glm::vec4 transformed = model * glm::vec4(unit_box[i], 1.0f);
-        vertexData.insert(vertexData.end(), {
-            unit_box[i].x, unit_box[i].y, unit_box[i].z,
-            color.r, color.g, color.b
-        });
+        vertices[i].pos = glm::vec3(transformed);
+        vertices[i].color = color;
+        vertices[i].normal = glm::vec3(0.0f); // temporarily zero
     }
 
+    std::vector<unsigned> indices(unit_indices, unit_indices + 36);
+
+    // ---------------------------------------
+    // 3. Compute normals per triangle
+    // ---------------------------------------
+std::vector<glm::vec3> normals(vertices.size(), glm::vec3(0.0f));
+
+for (int i = 0; i < 36; i += 3) {
+    unsigned int i0 = indices[i];
+    unsigned int i1 = indices[i+1];
+    unsigned int i2 = indices[i+2];
+
+    glm::vec3 v0 = vertices[i0].pos;
+    glm::vec3 v1 = vertices[i1].pos;
+    glm::vec3 v2 = vertices[i2].pos;
+
+    glm::vec3 N = glm::normalize(glm::cross(v1 - v0, v2 - v0));
+
+    normals[i0] += N;
+    normals[i1] += N;
+    normals[i2] += N;
+}
+
+for (size_t i = 0; i < vertices.size(); i++)
+    vertices[i].normal = glm::normalize(normals[i]);
+
+    // ---------------------------------------
+    // 4. Upload to OpenGL
+    // ---------------------------------------
     Mesh mesh;
+
     glGenVertexArrays(1, &mesh.VAO);
     glGenBuffers(1, &mesh.VBO);
     glGenBuffers(1, &mesh.EBO);
@@ -72,15 +102,26 @@ Ygg::Mesh Ygg::RenderEngine::createBox(const glm::vec3 &pos, const glm::quat &or
     glBindVertexArray(mesh.VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,
+                 vertices.size() * sizeof(Vertex),   // FIXED
+                 vertices.data(),
+                 GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unit_indices), unit_indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 indices.size() * sizeof(unsigned),
+                 indices.data(),
+                 GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    // layout: pos(3), normal(3), color(3)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,pos));
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,normal));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex,color));
+    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 
@@ -89,79 +130,135 @@ Ygg::Mesh Ygg::RenderEngine::createBox(const glm::vec3 &pos, const glm::quat &or
     return mesh;
 }
 
-Ygg::Mesh Ygg::RenderEngine::createSphere(const glm::vec3 &pos, const glm::quat &orientation,
-                                         float radius, const glm::vec3 &color,
-                                         unsigned int stacks, unsigned int slices) {
 
-    std::vector<float> vertexData;
-    std::vector<unsigned int> indices;
 
-    for (unsigned int i = 0; i <= stacks; ++i) {
-        float v = (float)i / stacks;
-        float phi = v * glm::pi<float>();
 
-        for (unsigned int j = 0; j <= slices; ++j) {
-            float u = (float)j / slices;
-            float theta = u * glm::two_pi<float>();
 
-            float x = sin(phi) * cos(theta);
-            float y = cos(phi);
-            float z = sin(phi) * sin(theta);
 
-            vertexData.insert(vertexData.end(), {
-                x * radius, y * radius, z * radius,
-                color.r, color.g, color.b
-            });
-        }
-    }
 
-    for (unsigned int i = 0; i < stacks; ++i) {
-        for (unsigned int j = 0; j < slices; ++j) {
-            unsigned int first = i * (slices + 1) + j;
-            unsigned int second = first + slices + 1;
-            indices.insert(indices.end(), { first, second, first + 1, second, second + 1, first + 1 });
-        }
-    }
+Ygg::Mesh Ygg::RenderEngine::createSphere(const glm::vec3 &pos,
+const glm::quat &orientation,
+float radius,
+const glm::vec3 &color,
+unsigned int stacks,
+unsigned int slices)
+{
+std::vector<Vertex> vertices;
+std::vector<unsigned int> indices;
 
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), pos) * glm::mat4_cast(orientation);
-    for (size_t i = 0; i < vertexData.size(); i += 6) {
-        glm::vec4 transformed = model * glm::vec4(vertexData[i], vertexData[i + 1], vertexData[i + 2], 1.0f);
-        vertexData[i] = transformed.x;
-        vertexData[i + 1] = transformed.y;
-        vertexData[i + 2] = transformed.z;
-    }
 
-    Mesh mesh;
-    glGenVertexArrays(1, &mesh.VAO);
-    glGenBuffers(1, &mesh.VBO);
-    glGenBuffers(1, &mesh.EBO);
+// generate vertices
+for (unsigned int i = 0; i <= stacks; ++i) {
+float v = (float)i / (float)stacks;
+float phi = v * glm::pi<float>(); // 0..pi
 
-    glBindVertexArray(mesh.VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindVertexArray(0);
+for (unsigned int j = 0; j <= slices; ++j) {
+float u = (float)j / (float)slices;
+float theta = u * glm::two_pi<float>(); // 0..2pi
 
-    mesh.indexCount = static_cast<unsigned int>(indices.size());
-    mesh.model = model;
-    return mesh;
+
+float x = sin(phi) * cos(theta);
+float y = cos(phi);
+float z = sin(phi) * sin(theta);
+
+
+glm::vec3 position = glm::vec3(x, y, z) * radius;
+glm::vec3 normal = glm::normalize(glm::vec3(x, y, z));
+
+
+Vertex vert;
+vert.pos = position;
+vert.normal = normal;
+vert.color = color;
+vertices.push_back(vert);
+}
 }
 
-void Ygg::RenderEngine::drawMesh(const Mesh &mesh, const glm::mat4& view, const glm::mat4& projection) {
+
+// generate indices (triangles)
+for (unsigned int i = 0; i < stacks; ++i) {
+for (unsigned int j = 0; j < slices; ++j) {
+unsigned int first = i * (slices + 1) + j;
+unsigned int second = first + slices + 1;
+
+
+// two triangles per quad
+indices.push_back(first);
+indices.push_back(second);
+indices.push_back(first + 1);
+
+
+indices.push_back(second);
+indices.push_back(second + 1);
+indices.push_back(first + 1);
+}
+}
+
+
+// transform positions by model (do NOT transform normals here with non-uniform scale; we will store model)
+glm::mat4 model = glm::translate(glm::mat4(1.0f), pos) * glm::mat4_cast(orientation);
+
+
+// upload to GPU
+Mesh mesh;
+glGenVertexArrays(1, &mesh.VAO);
+glGenBuffers(1, &mesh.VBO);
+glGenBuffers(1, &mesh.EBO);
+
+
+glBindVertexArray(mesh.VAO);
+
+
+glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+
+glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
+glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+
+// vertex layout: pos(0), normal(1), color(2)
+glEnableVertexAttribArray(0);
+glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, pos));
+
+
+glEnableVertexAttribArray(1);
+glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
+
+
+glEnableVertexAttribArray(2);
+glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+
+
+glBindVertexArray(0);
+
+
+mesh.indexCount = static_cast<unsigned int>(indices.size());
+mesh.model = model;
+return mesh;
+}
+
+
+
+
+
+
+void Ygg::RenderEngine::drawMesh(const Mesh &mesh, const glm::mat4& view, const glm::mat4& projection, const glm::vec3 &cameraPos) {
     program.use();
     program.setMat4("projection", projection);
     program.setMat4("view", view);
     program.setMat4("model", mesh.model);
+    program.setVec3("lightPos", glm::vec3(0.0f, 10.0f, 3.0f));   
+    program.setVec3("lightColor", glm::vec3(1.0f));             
+    program.setVec3("cameraPos", cameraPos);            // ADD
     glBindVertexArray(mesh.VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(mesh.indexCount), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
+
+
+
 
 void Ygg::RenderEngine::cleanupMesh(Mesh &mesh) {
     if (mesh.VAO) glDeleteVertexArrays(1, &mesh.VAO);

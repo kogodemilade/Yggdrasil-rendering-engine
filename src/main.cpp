@@ -13,7 +13,7 @@ void scroll_callback(GLFWwindow *window, double xOffset, double yOffset);
 
 int main() {
 
-    if (engine.initGL("../shaders/vShader.glsl", "../shaders/fShader.glsl") != 0) {
+    if (engine.initGL("../shaders/vShader.glsl", "../shaders/fShader2.glsl") != 0) {
         return -1;
     }
 
@@ -54,11 +54,11 @@ int main() {
 
         // draw meshes (these meshes were baked with model transforms in createBox/createSphere)
         glm::mat4 view = cam.getViewMatrix();
-        engine.drawMesh(floor, view, projection);
-        engine.drawMesh(torso, view, projection);
-        engine.drawMesh(head, view, projection);
-        engine.drawMesh(leftUpperArm, view, projection);
-        engine.drawMesh(rightUpperArm, view, projection);
+        engine.drawMesh(floor, view, projection, cam.getCameraPos());
+        engine.drawMesh(torso, view, projection, cam.getCameraPos());
+        engine.drawMesh(head, view, projection, cam.getCameraPos());
+        engine.drawMesh(leftUpperArm, view, projection, cam.getCameraPos());
+        engine.drawMesh(rightUpperArm, view, projection, cam.getCameraPos());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -67,7 +67,7 @@ int main() {
     // cleanup
     engine.cleanupMesh(floor);
     engine.cleanupMesh(torso);
-    engine.cleanupMesh(head);
+    // engine.cleanupMesh(head);
     engine.cleanupMesh(leftUpperArm);
     engine.cleanupMesh(rightUpperArm);
 

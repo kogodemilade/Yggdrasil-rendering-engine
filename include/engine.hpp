@@ -1,199 +1,4 @@
-// #pragma once
-// #include "precision.hpp"
-// #include <glad/glad.h>
-// #include "utils/shader.hpp"
-// #include "utils/camera.hpp"
-// #include <GLFW/glfw3.h>
-// #include <glm/glm.hpp>
-// #include <glm/ext.hpp>
-// #include <iostream>
-// #include <vector>
-// #include <cmath>
-// #define STB_IMAGE_IMPLEMENTATION
-// #include "../include/stb/stb_image.h"
 
-// #define Program Shader
-
-// namespace Ygg {
-
-// struct Mesh {
-//     unsigned int VAO, VBO, EBO;
-//     unsigned int indexCount;
-// };
-
-// class RenderEngine {
-// private:
-//     static GLFWwindow *window;
-//     Program program;
-
-//     const unsigned int SCR_WIDTH = 800;
-//     const unsigned int SCR_HEIGHT = 600;
-
-//     static void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
-//         glViewport(0, 0, width, height);
-//     }
-
-//     glm::vec3 unit_box[8] = {
-//         {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f},
-//         {-0.5f, -0.5f,  0.5f}, {0.5f, -0.5f,  0.5f}, {0.5f, 0.5f,  0.5f}, {-0.5f, 0.5f,  0.5f}
-//     };
-
-//     unsigned int unit_indices[36] = {
-//         0,1,2, 2,3,0,  4,5,6, 6,7,4,
-//         0,4,7, 7,3,0,  1,5,6, 6,2,1,
-//         0,1,5, 5,4,0,  3,2,6, 6,7,3
-//     };
-
-// public:
-//     int initGL(const char *vShader="../shaders/vshader.glsl", const char *fShader="../shaders/fshader.glsl") {
-//         if (!glfwInit()) {
-//             std::cerr << "Failed to initialize GLFW\n";
-//             return -1;
-//         }
-
-//         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-//     #ifdef __APPLE__
-//         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-//     #endif
-
-//         window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Ygg Engine", nullptr, nullptr);
-//         if (!window) {
-//             std::cerr << "Failed to create GLFW window\n";
-//             glfwTerminate();
-//             return -1;
-//         }
-
-//         glfwMakeContextCurrent(window);
-//         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-//         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-//             std::cerr << "Failed to initialize GLAD\n";
-//             return -1;
-//         }
-
-//         program = Program(vShader, fShader);
-//         glEnable(GL_DEPTH_TEST);
-//         return 0;
-//     }
-
-//     GLFWwindow* getWindow() { return window; }
-
-//     Camera createCamera(glm::vec3 pos = {0.0f, 0.0f, 3.0f}) {
-//         return Camera(pos);
-//     }
-
-//     Mesh createBox(const glm::vec3 &pos, const glm::quat &orientation,
-//                    float width, float height, float depth, const glm::vec3 &color) {
-
-//         glm::mat4 model = glm::translate(glm::mat4(1.0f), pos)
-//                         * glm::mat4_cast(orientation)
-//                         * glm::scale(glm::mat4(1.0f), {width, height, depth});
-
-//         std::vector<float> vertexData;
-//         for (int i = 0; i < 8; ++i) {
-//             glm::vec4 transformed = model * glm::vec4(unit_box[i], 1.0f);
-//             vertexData.insert(vertexData.end(), {
-//                 transformed.x, transformed.y, transformed.z,
-//                 color.r, color.g, color.b
-//             });
-//         }
-
-//         Mesh mesh;
-//         glGenVertexArrays(1, &mesh.VAO);
-//         glGenBuffers(1, &mesh.VBO);
-//         glGenBuffers(1, &mesh.EBO);
-
-//         glBindVertexArray(mesh.VAO);
-
-//         glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-//         glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_STATIC_DRAW);
-
-//         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
-//         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unit_indices), unit_indices, GL_STATIC_DRAW);
-
-//         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-//         glEnableVertexAttribArray(0);
-//         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-//         glEnableVertexAttribArray(1);
-
-//         glBindVertexArray(0);
-
-//         mesh.indexCount = 36;
-//         return mesh;
-//     }
-
-//     Mesh createSphere(const glm::vec3 &pos, const glm::quat &orientation,
-//                       float radius, const glm::vec3 &color,
-//                       unsigned int stacks = 32, unsigned int slices = 32) {
-
-//         std::vector<float> vertexData;
-//         std::vector<unsigned int> indices;
-
-//         for (unsigned int i = 0; i <= stacks; ++i) {
-//             float v = (float)i / stacks;
-//             float phi = v * glm::pi<float>();
-
-//             for (unsigned int j = 0; j <= slices; ++j) {
-//                 float u = (float)j / slices;
-//                 float theta = u * glm::two_pi<float>();
-
-//                 float x = cos(theta) * sin(phi);
-//                 float y = cos(phi);
-//                 float z = sin(theta) * sin(phi);
-
-//                 vertexData.insert(vertexData.end(), {
-//                     x * radius, y * radius, z * radius,
-//                     color.r, color.g, color.b
-//                 });
-//             }
-//         }
-
-//         for (unsigned int i = 0; i < stacks; ++i) {
-//             for (unsigned int j = 0; j < slices; ++j) {
-//                 unsigned int first = i * (slices + 1) + j;
-//                 unsigned int second = first + slices + 1;
-//                 indices.insert(indices.end(), { first, second, first + 1, second, second + 1, first + 1 });
-//             }
-//         }
-
-//         glm::mat4 model = glm::translate(glm::mat4(1.0f), pos) * glm::mat4_cast(orientation);
-//         for (size_t i = 0; i < vertexData.size(); i += 6) {
-//             glm::vec4 transformed = model * glm::vec4(vertexData[i], vertexData[i + 1], vertexData[i + 2], 1.0f);
-//             vertexData[i] = transformed.x;
-//             vertexData[i + 1] = transformed.y;
-//             vertexData[i + 2] = transformed.z;
-//         }
-
-//         Mesh mesh;
-//         glGenVertexArrays(1, &mesh.VAO);
-//         glGenBuffers(1, &mesh.VBO);
-//         glGenBuffers(1, &mesh.EBO);
-
-//         glBindVertexArray(mesh.VAO);
-//         glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
-//         glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), GL_STATIC_DRAW);
-//         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
-//         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-//         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-//         glEnableVertexAttribArray(0);
-//         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-//         glEnableVertexAttribArray(1);
-//         glBindVertexArray(0);
-
-//         mesh.indexCount = indices.size();
-//         return mesh;
-//     }
-// };
-
-// } // namespace Ygg
-
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// render_engine.hpp
 #pragma once
 #include "precision.hpp"
 #include "glad/glad.h"
@@ -214,6 +19,13 @@ struct Mesh {
     unsigned int VAO = 0, VBO = 0, EBO = 0;
     unsigned int indexCount = 0;
     glm::mat4 model;
+    std::vector<float> normals;
+};
+
+struct Vertex {
+    glm::vec3 pos;
+    glm::vec3 normal;
+    glm::vec3 color;
 };
 
 class RenderEngine {
@@ -231,6 +43,12 @@ private:
     glm::vec3 unit_box[8] = {
         {-0.5f, -0.5f, -0.5f}, {0.5f, -0.5f, -0.5f}, {0.5f, 0.5f, -0.5f}, {-0.5f, 0.5f, -0.5f},
         {-0.5f, -0.5f,  0.5f}, {0.5f, -0.5f,  0.5f}, {0.5f, 0.5f,  0.5f}, {-0.5f, 0.5f,  0.5f}
+    };
+
+    glm::vec3 box_face_normals[6] = {
+        {1,0,0}, {-1,0,0},
+        {0,1,0}, {0,-1,-0},
+        {0,0,1}, {0,0,-1}
     };
 
     unsigned int unit_indices[36] = {
@@ -255,10 +73,10 @@ public:
 
     Mesh createSphere(const glm::vec3 &pos, const glm::quat &orientation,
                       float radius, const glm::vec3 &color,
-                      unsigned int stacks = 32, unsigned int slices = 32);
+                      unsigned int stacks = 12, unsigned int slices = 12);
 
     // drawing, cleanup, termination utilities
-    void drawMesh(const Mesh &mesh,  const glm::mat4& view,  const glm::mat4& projection);
+    void drawMesh(const Mesh &mesh,  const glm::mat4& view,  const glm::mat4& projection, const glm::vec3 &cameraPos);
     void cleanupMesh(Mesh &mesh);
     void terminate();
 
