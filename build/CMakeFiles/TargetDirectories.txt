@@ -1,3 +1,8 @@
-/home/kingade/Desktop/Yggdrasil/build/CMakeFiles/Yggdrasil.dir
 /home/kingade/Desktop/Yggdrasil/build/CMakeFiles/edit_cache.dir
 /home/kingade/Desktop/Yggdrasil/build/CMakeFiles/rebuild_cache.dir
+/home/kingade/Desktop/Yggdrasil/build/engine/CMakeFiles/Ygg.dir
+/home/kingade/Desktop/Yggdrasil/build/engine/CMakeFiles/edit_cache.dir
+/home/kingade/Desktop/Yggdrasil/build/engine/CMakeFiles/rebuild_cache.dir
+/home/kingade/Desktop/Yggdrasil/build/demo/CMakeFiles/YggDemo.dir
+/home/kingade/Desktop/Yggdrasil/build/demo/CMakeFiles/edit_cache.dir
+/home/kingade/Desktop/Yggdrasil/build/demo/CMakeFiles/rebuild_cache.dir

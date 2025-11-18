@@ -1,0 +1,2 @@
+/usr/bin/ar qc libYgg.a CMakeFiles/Ygg.dir/src/engine.cpp.o CMakeFiles/Ygg.dir/src/stb_impl.cpp.o CMakeFiles/Ygg.dir/src/glad.c.o
+/usr/bin/ranlib libYgg.a

@@ -148,7 +148,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=Yggdrasil
+CMAKE_PROJECT_NAME:STATIC=YggProject
 
 //Path to a program.
 CMAKE_RANLIB:FILEPATH=/usr/bin/ranlib
@@ -216,19 +216,25 @@ CMAKE_TAPI:FILEPATH=CMAKE_TAPI-NOTFOUND
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
 //Value Computed by CMake
-Yggdrasil_BINARY_DIR:STATIC=/home/kingade/Desktop/Yggdrasil/build
+YggEngine_BINARY_DIR:STATIC=/home/kingade/Desktop/Yggdrasil/build/engine
 
 //Value Computed by CMake
-Yggdrasil_IS_TOP_LEVEL:STATIC=ON
+YggEngine_IS_TOP_LEVEL:STATIC=OFF
 
 //Value Computed by CMake
-Yggdrasil_SOURCE_DIR:STATIC=/home/kingade/Desktop/Yggdrasil
+YggEngine_SOURCE_DIR:STATIC=/home/kingade/Desktop/Yggdrasil/engine
 
-//The directory containing a CMake configuration file for glfw3.
-glfw3_DIR:PATH=/usr/local/lib/cmake/glfw3
+//Value Computed by CMake
+YggProject_BINARY_DIR:STATIC=/home/kingade/Desktop/Yggdrasil/build
 
-//The directory containing a CMake configuration file for glm.
-glm_DIR:PATH=glm_DIR-NOTFOUND
+//Value Computed by CMake
+YggProject_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+YggProject_SOURCE_DIR:STATIC=/home/kingade/Desktop/Yggdrasil
+
+//Dependencies for the target
+Ygg_LIB_DEPENDS:STATIC=general;glfw;
 
 
 ########################
@@ -313,8 +319,6 @@ CMAKE_GENERATOR_INSTANCE:INTERNAL=
 CMAKE_GENERATOR_PLATFORM:INTERNAL=
 //Name of generator toolset.
 CMAKE_GENERATOR_TOOLSET:INTERNAL=
-//Test CMAKE_HAVE_LIBC_PTHREAD
-CMAKE_HAVE_LIBC_PTHREAD:INTERNAL=1
 //Source directory with the top level CMakeLists.txt file for this
 // project
 CMAKE_HOME_DIRECTORY:INTERNAL=/home/kingade/Desktop/Yggdrasil
@@ -337,7 +341,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=3
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -382,8 +386,6 @@ CMAKE_TAPI-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
-//Details about finding Threads
-FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
 //linker supports push/pop state
 _CMAKE_LINKER_PUSHPOP_STATE_SUPPORTED:INTERNAL=TRUE
 
