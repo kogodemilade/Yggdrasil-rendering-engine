@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/Yggdrasil.dir/src/glad.c.o CMakeFiles/Yggdrasil.dir/src/main.cpp.o CMakeFiles/Yggdrasil.dir/src/engine.cpp.o CMakeFiles/Yggdrasil.dir/src/stb_impl.cpp.o -o Yggdrasil  /usr/local/lib/libglfw3.a /usr/lib/x86_64-linux-gnu/librt.a -lm -ldl 

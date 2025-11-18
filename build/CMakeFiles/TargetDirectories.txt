@@ -1,0 +1,3 @@
+/home/kingade/Desktop/Yggdrasil/build/CMakeFiles/Yggdrasil.dir
+/home/kingade/Desktop/Yggdrasil/build/CMakeFiles/edit_cache.dir
+/home/kingade/Desktop/Yggdrasil/build/CMakeFiles/rebuild_cache.dir
