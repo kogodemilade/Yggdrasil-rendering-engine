@@ -277,7 +277,7 @@ class Camera{
                 fov = minZoom;
             }
             //recalculate projection matrix
-            projection = glm::perspective(glm::radians(fov), (float)scr_width/scr_height, 0.1f, 100.0f);
+            projection = glm::perspective(glm::radians(fov), (float)scr_width/scr_height, 1.0f, 100.0f);
 
         }
 

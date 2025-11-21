@@ -25,6 +25,7 @@ int main() {
     Ygg::Mesh leftUpperArm = engine.createBox({-0.7f, 0.6f, 0.0f}, glm::quat(), 0.2f, 0.5f, 0.2f, {0.3f, 0.3f, 0.8f});
     Ygg::Mesh rightUpperArm = engine.createBox({0.7f, 0.6f, 0.0f}, glm::quat(), 0.2f, 0.5f, 0.2f, {0.3f, 0.3f, 0.8f});
 
+    static Ygg::Line thread = engine.createLine();
     // simple GL state
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     
@@ -34,7 +35,9 @@ int main() {
 
     auto lastTime = std::chrono::high_resolution_clock::now();
 
+    float i = 1;
     while (!glfwWindowShouldClose(window)) {
+        i+=2;
         // delta time
         auto now = std::chrono::high_resolution_clock::now();
         float dt = std::chrono::duration<float>(now - lastTime).count();
@@ -50,15 +53,22 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // engine.setCameraUniforms(cam);
+        float s = 1.0f + sin(i) * 0.5f;
+        glm::mat4 scaled = torso.model * glm::scale(glm::mat4(1.0f), glm::vec3(s));
 
         // draw meshes (these meshes were baked with model transforms in createBox/createSphere)
         glm::mat4 view = cam.getViewMatrix();
-        engine.drawMesh(floor, view, projection, cam.getCameraPos());
-        engine.drawMesh(torso, view, projection, cam.getCameraPos());
-        engine.drawMesh(head, view, projection, cam.getCameraPos());
-        engine.drawMesh(leftUpperArm, view, projection, cam.getCameraPos());
-        engine.drawMesh(rightUpperArm, view, projection, cam.getCameraPos());
+        engine.drawMesh(floor, view, projection, cam.getCameraPos(), floor.model);
+        engine.drawMesh(torso, view, projection, cam.getCameraPos(), torso.model);
+        engine.drawMesh(head, view, projection, cam.getCameraPos(), head.model);
+        engine.drawMesh(leftUpperArm, view, projection, cam.getCameraPos(), leftUpperArm.model);
+        engine.drawMesh(rightUpperArm, view, projection, cam.getCameraPos(), rightUpperArm.model);
 
+        glm::vec3 p1 = glm::vec3(0, 5, 0);
+        glm::vec3 p2 = glm::vec3(0,0,0);
+        glm::vec3 ropecolor = {0,0,0};
+        engine.updateLine(thread, p1, p2, ropecolor);
+        engine.drawLine(thread, view, projection, cam.getCameraPos(), ropecolor);
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

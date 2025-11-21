@@ -28,6 +28,10 @@ struct Vertex {
     glm::vec3 color;
 };
 
+struct Line {
+GLuint VAO, VBO;
+};
+
 class RenderEngine {
 private:
     static GLFWwindow *window;
@@ -67,6 +71,9 @@ public:
 
     Camera createCamera(glm::vec3 pos = {0.0f, 0.0f, 3.0f});
 
+    Line createLine();
+    void updateLine(const Line& line, glm::vec3 p1, glm::vec3 p2, glm::vec3 color);
+
     // createBox and createSphere create Mesh objects whose vertex positions are already transformed (simple)
     Mesh createBox(const glm::vec3 &pos, const glm::quat &orientation,
                    float width, float height, float depth, const glm::vec3 &color);
@@ -76,7 +83,12 @@ public:
                       unsigned int stacks = 12, unsigned int slices = 12);
 
     // drawing, cleanup, termination utilities
-    void drawMesh(const Mesh &mesh,  const glm::mat4& view,  const glm::mat4& projection, const glm::vec3 &cameraPos);
+    void drawMesh(const Mesh &mesh,  const glm::mat4& view,  const glm::mat4& projection, const glm::vec3 &cameraPos, const glm::mat4 &rotAndPos);
+    void drawLine(const Line& line,
+                            const glm::mat4& view,
+                            const glm::mat4& proj,
+                            const glm::vec3 &cameraPos,
+                            glm::vec3 color);
     void cleanupMesh(Mesh &mesh);
     void terminate();
 
